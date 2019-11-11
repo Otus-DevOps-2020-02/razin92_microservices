@@ -1,0 +1,3 @@
+---
+- name: Run container
+  command: docker run --name {{ container_name|quote }} -d -p 9292:9292 {{ image_name|quote }}

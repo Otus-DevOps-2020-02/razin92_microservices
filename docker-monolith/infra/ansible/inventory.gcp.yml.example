@@ -1,0 +1,13 @@
+---
+plugin: gcp_compute
+projects:
+  - project.id
+service_account_file: ~/path/to/key.json
+auth_kind: serviceaccount
+# Отображаемая информация о хостах
+hostnames:
+  - name
+# Переменные hostsvars
+compose:
+  # Внешние IP адреса. Используются для подключения к хостам
+  ansible_host: networkInterfaces[0].accessConfigs[0].natIP
