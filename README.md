@@ -12,7 +12,16 @@
 # Домашнее задание 12
 ## Технология контейнеризации. Введение в Docker
 
-Команды:
+### Namespaces
+- **PID** - изоляция процессов. Нумерация с 1. При уничтожении умерает весь namespace
+- **mnt** - точки монтирования
+- **net** - изоляция сети
+- **utc** - hostname, domain name
+- **IPC** - коммуникация между процессами
+- **user** - изоляция UID и GID 
+
+**Команды:**
+- `docker info` - информация о приложении
 - `docker ps` - список запущенных контейнеров
 - `docker ps -a` - список всех контейнеров
 - `docker ps -q` - ID только запущенных контейнеров
@@ -30,15 +39,22 @@
 - `docker exec` - выполнение команд внутри контейнера
 - `docker logs` - просмотр логов
 - `docker diff` - различия между контейнером и образом
+- `docker volume create <name>` - создание раздела для docker. В последствии, может быть одновременно использован несколькими контейнарми
+- `docker volume ls` - список всех разделов
+- `docker run -v <name>:/target/path` - использование раздела
+- `docker build --tag <name> .` - сброка образа на основе Dockerfile 
 
 Примеры `docker run`
 ```
-docker run -it ubuntu:16.04 bash
+docker run --rm -it ubuntu:16.04 bash
 docker run -dt nginx:latest
+docker run --rm --pid host -ti tehbilly/htop
 
 # -i - запуск контейнера в foreground (docker attach)
 # -d - запуск контейнера в background
 # -t - создает TTY
+# --rm - удаляет контейнер при выходе из него
+# --pid host - запуск контейнера в определенном PID namespace
 ```
 
 ## Docker-контейнеры
@@ -55,4 +71,4 @@ docker-machine create --driver google \
  --google-zone europe-west1-b \
  docker-host
 ```
-Создание инстанса в GCE использует переменную окружения `GOOGLE_PROJECT` для 
+При создании инстанса в GCE с помощью `docker-machine` используется переменная окружения `GOOGLE_PROJECT` для указания управляемого проекта. 
