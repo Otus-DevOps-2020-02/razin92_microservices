@@ -7,6 +7,7 @@
 **Содрежание:**
 <a name="top"></a>
 1. [ДЗ#12 - Технология контейнеризации. Введение в Docker](#hw12)
+2. [ДЗ#13 - Docker-образы. Микросервисы](#hw13)
 ---
 <a name="hw12"></a> 
 # Домашнее задание 12
@@ -43,6 +44,7 @@
 - `docker volume ls` - список всех разделов
 - `docker run -v <name>:/target/path` - использование раздела
 - `docker build --tag <name> .` - сброка образа на основе Dockerfile 
+- `docker network create <name>` - создание сети для контейнеров
 
 Примеры `docker run`
 ```
@@ -72,3 +74,58 @@ docker-machine create --driver google \
  docker-host
 ```
 При создании инстанса в GCE с помощью `docker-machine` используется переменная окружения `GOOGLE_PROJECT` для указания управляемого проекта. 
+
+Для подключения к инстансу выполнить следующие команды:
+```
+docker-machine env <instance_name>
+eval "$(docker-machine env <instance_name>)"
+```
+
+
+[Содержание](#top)
+<a name="hw13"></a> 
+# Домашнее задание 13
+## Docker-образы. Микросервисы
+
+[Написание Dockerfile](https://docs.docker.com/engine/reference/builder/)
+
+При сборке `image` из одинакового базового образа первая команда `build` кеширует его, а последующие уже будут собираться не с первого шага.
+
+## 1 Задание со *
+Для запуска контейнеров с определенной переменной окружения применяется ключ `--env`. Для указания нескольких переменных, указывается либо файл со значениями, либо несколько таких ключей.
+
+Пример:
+```
+docker run -d --network=reddit2 -p 9292:9292 --env POST_SERVICE_HOST=post2 --env COMMENT_SERVICE_HOST=comment2 razin92/ui:1.0
+```
+## 2 Задание со *
+Уменьшение размера образа контейнера.
+### UI
+```
+# Dockerfile.3
+# Использование образа Alpine с Ruby
+
+FROM ruby:2.2-alpine
+RUN apk update && apk add --virtual build-base
+...
+
+# Итоговый размер: 307MB
+```
+```
+# Dockerfile.4
+# Удаление инструментов для сброки после самой сборки приложения
+
+FROM ruby:2.2-alpine
+...
+RUN apk update && \
+    apk add --virtual build-base && \
+    bundle install &&\
+    apk del build-base
+...
+
+# Итоговый размер: 159MB
+```
+### Comment
+Оптимизация как и в UI
+
+Итоговый размер: 157MB
