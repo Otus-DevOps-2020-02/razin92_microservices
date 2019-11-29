@@ -6,3 +6,4 @@ credentials.json
 *.tfstate
 *.tfstate.*.backup
 *.tfstate.backup
+.env
