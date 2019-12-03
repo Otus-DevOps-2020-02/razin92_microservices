@@ -15,9 +15,19 @@ before_script:
   - bundle install
 
 build_job:
+  image: docker:latest
+  service:
+    - docker:dnd
   stage: build
+  before-script:
+    - cd docker-monolith
   script:
-    - echo 'Building'
+    - docker build -t $GITLAB_USER_LOGIN/reddit:$CI_JOB_ID .
+  environment:
+    - $CI_COMMIT_REF_NAME
+  only:
+    - branches
+  
 
 test_unit_job:
   stage: test
