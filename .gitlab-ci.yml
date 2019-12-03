@@ -15,16 +15,15 @@ before_script:
   - bundle install
 
 build_job:
-  image: docker:latest
-  service:
-    - docker:dnd
-  stage: build
-  before-script:
+  before_script: 
     - cd docker-monolith
+  stage: build
+  image: docker:stable-dind
   script:
     - docker build -t $GITLAB_USER_LOGIN/reddit:$CI_JOB_ID .
   environment:
-    - $CI_COMMIT_REF_NAME
+    name: $CI_COMMIT_REF_NAME
+    url: http://$CI_COMMIT_REF_NAME.example.com:9292
   only:
     - branches
   
