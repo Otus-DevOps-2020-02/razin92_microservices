@@ -18,7 +18,9 @@ build_job:
   before_script: 
     - cd docker-monolith
   stage: build
-  image: docker:stable-dind
+  image: docker:stable
+  services:
+    - docker:dind
   script:
     - docker build -t $GITLAB_USER_LOGIN/reddit:$CI_JOB_ID .
   environment:
@@ -27,7 +29,6 @@ build_job:
   only:
     - branches
   
-
 test_unit_job:
   stage: test
   services:
