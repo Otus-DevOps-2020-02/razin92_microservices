@@ -1,0 +1,4 @@
+---
+image_name: gitlab/gitlab-ce:latest
+hostname: gitlab.example.com
+gitlab_ip: "{{ ansible_host }}"
