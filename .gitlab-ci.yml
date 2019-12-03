@@ -16,7 +16,7 @@ test_unit_job:
   services:
     - mongo:latest
   script:
-    - ruby simpletest.rb
+    - ruby reddit/simpletest.rb
 
 test_integration_job:
   stage: test
