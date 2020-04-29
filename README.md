@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 [![Build Status](https://travis-ci.com/Otus-DevOps-2019-08/razin92_microservices.svg?branch=master)](https://travis-ci.com/Otus-DevOps-2019-08/razin92_microservices)
 
 # razin92_microservices
@@ -234,3 +235,7 @@ volumes:
   post-py:
   comment:
 ```
+=======
+# razin92_microservices
+razin92 microservices repository
+>>>>>>> 7ee9cc71e1af4fcab4e92d014c22682c9d595506
