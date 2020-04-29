@@ -1,0 +1,9 @@
+inventory.gcp.yml
+terraform.tfvars
+variables.json
+credentials.json
+.terraform
+*.tfstate
+*.tfstate.*.backup
+*.tfstate.backup
+.env
