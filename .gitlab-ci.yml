@@ -23,6 +23,7 @@ build_job:
     - apt-get install -y mongodb-server ruby-full ruby-dev build-essential git
     - gem install bundler
     - git clone -b monolith https://github.com/express42/reddit.git
+    - ls
     - cp mongod.conf /etc/mongod.conf
     - cp db_config /reddit/db_config
     - cd /reddit && bundle install
