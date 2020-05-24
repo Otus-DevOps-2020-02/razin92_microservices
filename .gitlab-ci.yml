@@ -19,7 +19,10 @@ build_job:
   tags:
     - shell
   script:
-    - docker info 
+    - echo "Building Reddit Container"
+    - docker build -t $DOCKER_USER/gitlab_hw:$CI_JOB_ID .
+    - docker login -u $DOCKER_USER -p $DOCKER_USER_PASSWORD
+    - docker push $DOCKER_USER/gitlab_hw:$CI_JOB_ID
 
 test_unit_job:
   stage: test
