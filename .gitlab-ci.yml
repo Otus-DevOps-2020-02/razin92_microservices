@@ -13,9 +13,19 @@ before_script:
   - bundle install 
 
 build_job:
+  before_script: 
+    - cd docker-monolith
   stage: build
+  image: docker:stable
+  services:
+    - docker:dind
   script:
-    - echo 'Building'
+    - docker build -t $GITLAB_USER_LOGIN/reddit:$CI_JOB_ID .
+  environment:
+    name: $CI_COMMIT_REF_NAME
+    url: http://$CI_SERVER_HOST:9292
+  only:
+    - branches
 
 test_unit_job:
   stage: test
