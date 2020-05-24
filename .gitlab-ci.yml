@@ -34,6 +34,8 @@ test_unit_job:
     - ruby simpletest.rb
 
 test_integration_job:
+  before_script:
+    - echo 'Gcloud testing'
   stage: test
   tags:
     - gcp
