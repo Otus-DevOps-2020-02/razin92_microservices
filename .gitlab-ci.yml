@@ -1,34 +1,20 @@
-image: ruby:2.4.2
-
 stages:
   - build
   - test
-  - review
-  - stage
-  - production
+  - deploy
 
 variables:
   DATABASE_URL: 'mongodb://mongo/user_posts'
 
 before_script:
   - cd reddit
-  - bundle install
+  - bundle install 
 
 build_job:
-  before_script: 
-    - cd docker-monolith
   stage: build
-  image: docker:stable
-  services:
-    - docker:dind
   script:
-    - docker build -t $GITLAB_USER_LOGIN/reddit:$CI_JOB_ID .
-  environment:
-    name: $CI_COMMIT_REF_NAME
-    url: http://$CI_COMMIT_REF_NAME.example.com:9292
-  only:
-    - branches
-  
+    - echo 'Building'
+
 test_unit_job:
   stage: test
   services:
@@ -41,43 +27,8 @@ test_integration_job:
   script:
     - echo 'Testing 2'
 
-deploy_dev_job:
-  stage: review
+deploy_job:
+  stage: deploy
   script:
     - echo 'Deploy'
-  environment:
-    name: dev
-    url: http://dev.example.com
 
-branch review:
-  stage: review
-  script: echo "Deploy to $CI_ENVIRONMENT_SLUG"
-  environment:
-    name: branch/$CI_COMMIT_REF_NAME
-    url: http://$CI_ENVIRONMENT_SLUG.example.com
-  only:
-    - branches
-  except:
-    - master
-
-staging:
-  stage: stage
-  when: manual
-  only:
-    - /^\d+\.\d+\.\d+/
-  script:
-    - echo 'Deploy'
-  environment:
-    name: stage
-    url: http://beta.example.com
-
-production:
-  stage: production
-  when: manual
-  only:
-    - /^\d+\.\d+\.\d+/
-  script:
-    - echo 'Deploy'
-  environment:
-    name: production
-    url: http://example.com
