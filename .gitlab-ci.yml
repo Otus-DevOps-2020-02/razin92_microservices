@@ -16,22 +16,10 @@ build_job:
   before_script: 
     - cd docker-monolith
   stage: build
-  image: ubuntu:16.04
+  tags:
+    - shell
   script:
-    - apt-get update
-    - apt-get install -y mongodb-server ruby-full ruby-dev build-essential git
-    - gem install bundler
-    - git clone -b monolith https://github.com/express42/reddit.git
-    - cp mongod.conf /etc/mongod.conf
-    - cd /reddit && bundle install
-    - /usr/bin/mongod --fork --logpath /var/log/mongod.log --config /etc/mongodb.conf
-    - export DATABASE_URL=127.0.0.1
-    - cd /reddit && puma
-  environment:
-    name: $CI_COMMIT_REF_NAME
-    url: http://$CI_SERVER_HOST:9292
-  only:
-    - branches
+    - docker info 
 
 test_unit_job:
   stage: test
