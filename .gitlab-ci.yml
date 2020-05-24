@@ -16,6 +16,7 @@ build_job:
   before_script: 
     - cd docker-monolith
   stage: build
+  when: manual
   tags:
     - shell
   script:
@@ -26,6 +27,7 @@ build_job:
 
 test_unit_job:
   stage: test
+  when: manual
   services:
     - mongo:latest
   script:
@@ -33,8 +35,11 @@ test_unit_job:
 
 test_integration_job:
   stage: test
+  tags:
+    - gcp
   script:
     - echo 'Testing 2'
+    - gcloud version
 
 deploy_dev_job:
   stage: review

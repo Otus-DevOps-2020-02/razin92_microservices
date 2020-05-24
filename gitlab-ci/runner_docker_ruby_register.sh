@@ -1,5 +1,5 @@
 #! /bin/sh
-# Регистрация нового GitlabRunner Docker
+# Регистрация нового GitlabRunner Docker Ruby
 
 docker exec -it gitlab-runner gitlab-runner register \
  --non-interactive \
