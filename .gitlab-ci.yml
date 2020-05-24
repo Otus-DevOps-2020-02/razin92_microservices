@@ -26,8 +26,7 @@ build_job:
     - cd /reddit && bundle install
     - /usr/bin/mongod --fork --logpath /var/log/mongod.log --config /etc/mongodb.conf
     - export DATABASE_URL=127.0.0.1
-    - ls
-    - ./puma
+    - cd /reddit && puma
   environment:
     name: $CI_COMMIT_REF_NAME
     url: http://$CI_SERVER_HOST:9292
