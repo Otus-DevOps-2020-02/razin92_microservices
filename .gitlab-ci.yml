@@ -18,16 +18,16 @@ build_job:
   stage: build
   image: ubuntu:16.04
   script:
-    - ls
     - apt-get update
     - apt-get install -y mongodb-server ruby-full ruby-dev build-essential git
     - gem install bundler
     - git clone -b monolith https://github.com/express42/reddit.git
-    - ls
     - cp mongod.conf /etc/mongod.conf
     - cp db_config /reddit/db_config
     - cd /reddit && bundle install
-    - ../start.sh
+    - /usr/bin/mongod --fork --logpath /var/log/mongod.log --config /etc/mongodb.conf
+    - source ../db_config
+    - puma
   environment:
     name: $CI_COMMIT_REF_NAME
     url: http://$CI_SERVER_HOST:9292
