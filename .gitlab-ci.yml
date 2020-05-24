@@ -23,10 +23,9 @@ build_job:
     - gem install bundler
     - git clone -b monolith https://github.com/express42/reddit.git
     - cp mongod.conf /etc/mongod.conf
-    - cp db_config /reddit/db_config
     - cd /reddit && bundle install
     - /usr/bin/mongod --fork --logpath /var/log/mongod.log --config /etc/mongodb.conf
-    - source ../db_config
+    - source DATABASE_URL=127.0.0.1
     - puma
   environment:
     name: $CI_COMMIT_REF_NAME
