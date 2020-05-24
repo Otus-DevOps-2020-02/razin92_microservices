@@ -20,7 +20,7 @@ build_job:
   services:
     - docker:dind
   script:
-    - docker build -t $GITLAB_USER_LOGIN/reddit:$CI_JOB_ID .
+    - docker info
   environment:
     name: $CI_COMMIT_REF_NAME
     url: http://$CI_SERVER_HOST:9292
