@@ -44,7 +44,7 @@ test_integration_job:
     - gcloud version
     - gcloud auth activate-service-account $GCLOUD_SERVICE_ACCOUNT --key-file=$GCLOUD_SERVICE_ACCOUNT_KEY
     - gcloud auth list
-    - gcloud compute ssh gitlab-ci --force-key-file-overwrite --zone $GCP_ZONE --command "sudo docker pull razin92/gitlab_hw"
+    - gcloud compute ssh $GCLOUD_SERVICE_ACCOUNT@gitlab-ci --force-key-file-overwrite --zone $GCP_ZONE --command "sudo docker pull razin92/gitlab_hw"
 
 deploy_dev_job:
   stage: review
