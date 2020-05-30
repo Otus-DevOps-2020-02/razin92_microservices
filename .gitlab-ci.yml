@@ -26,7 +26,6 @@ build_job:
 
 test_unit_job:
   stage: test
-  when: manual
   services:
     - mongo:latest
   script:
