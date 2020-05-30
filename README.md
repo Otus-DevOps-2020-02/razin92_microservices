@@ -265,6 +265,8 @@ web:
 
 ### Краткое описание конфигурации gitlab-ci.yml
 ```
+# образ контейнера по умолчанию
+image: ruby:2.4.2
 # Стадии конвеера. На каждую стадию может быть несколько джобов
 stages:
   - build
@@ -416,3 +418,7 @@ docker exec -it gitlab-runner gitlab-runner register \
 - `GCP_ZONE` зона, в которой находится инстанс
 
 Для интеграции со слаком необходимо в мессанджере настроить кастомную интеграции. Сгенерированный вебхук использовать в настройках GitlabCi в разделе интеграции.
+
+Полезные ссылки:
+- [Настройка деплоя в GCP из GitLab](https://medium.com/google-cloud/automatically-deploy-to-google-app-engine-with-gitlab-ci-d1c7237cbe11)
+- [Настройка сервис-аккаунта](https://stackoverflow.com/questions/45472882/how-to-authenticate-google-cloud-sdk-on-a-docker-ubuntu-image)
