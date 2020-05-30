@@ -44,6 +44,7 @@ test_integration_job:
     - echo $GCLOUD_SERVICE_ACCOUNT_KEY > ./$CI_PIPELINE_ID.json
     - gcloud version
     - gcloud auth activate-service-account --key-file=./$CI_PIPELINE_ID.json
+    - gcloud --quiet config set project $GCP_PROJECT 
     - gcloud auth list
     - gcloud compute config-ssh
     - gcloud compute ssh gitlab-ci --force-key-file-overwrite --zone $GCP_ZONE --command "sudo docker pull razin92/gitlab_hw"
