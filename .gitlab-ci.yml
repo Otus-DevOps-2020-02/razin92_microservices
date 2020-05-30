@@ -42,6 +42,8 @@ test_integration_job:
   script:
     - echo 'Testing 2'
     - gcloud version
+    - gcloud auth activate-service-account $GCLOUD_SERVICE_ACCOUNT --key-file=$GCLOUD_SERVICE_ACCOUNT_KEY
+    - gcloud auth list
 
 deploy_dev_job:
   stage: review

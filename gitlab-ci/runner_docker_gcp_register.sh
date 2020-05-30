@@ -3,7 +3,6 @@
 
 docker exec -it gitlab-runner gitlab-runner register \
  --non-interactive \
- --run-untagged \
  --locked=false \
  --url=http://$(docker-machine ip gitlab-ci)/ \
  --executor=docker \
