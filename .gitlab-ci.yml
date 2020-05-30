@@ -21,9 +21,9 @@ build_job:
     - shell
   script:
     - echo "Building Reddit Container"
-    - docker build -t $DOCKER_USER/gitlab_hw:$CI_JOB_ID .
+    - docker build -t $DOCKER_USER/gitlab_hw:$CI_PIPELINE_ID .
     - docker login -u $DOCKER_USER -p $DOCKER_USER_PASSWORD
-    - docker push $DOCKER_USER/gitlab_hw:$CI_JOB_ID
+    - docker push $DOCKER_USER/gitlab_hw:$CI_PIPELINE_ID
 
 test_unit_job:
   stage: test
@@ -43,7 +43,7 @@ test_integration_job:
     - echo 'Testing 2'
     - echo $GCLOUD_SERVICE_ACCOUNT_KEY > ./$CI_PIPELINE_ID.json
     - gcloud auth activate-service-account --key-file=./$CI_PIPELINE_ID.json
-    - gcloud compute ssh gitlab-ci --force-key-file-overwrite --zone $GCP_ZONE --command "sudo docker pull $DOCKER_USER/gitlab_hw:$CI_JOB_ID"
+    - gcloud compute ssh gitlab-ci --force-key-file-overwrite --zone $GCP_ZONE --command "sudo docker run --rm -d --name reddit -p 9292:9292 $DOCKER_USER/gitlab_hw:$CI_PIPELINE_ID"
 
 deploy_dev_job:
   stage: review
