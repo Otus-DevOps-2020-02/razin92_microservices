@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.com/Otus-DevOps-2019-08/razin92_microservices.svg?branch=master)](https://travis-ci.com/Otus-DevOps-2019-08/razin92_microservices)
+[![Build Status](https://travis-ci.com/Otus-DevOps-2020-02/razin92_microservices.svg?branch=master)](https://travis-ci.com/Otus-DevOps-2020-02/razin92_microservices)
 
 # razin92_microservices
 
@@ -9,6 +9,7 @@
 1. [ДЗ#12 - Технология контейнеризации. Введение в Docker](#hw12)
 2. [ДЗ#13 - Docker-образы. Микросервисы](#hw13)
 3. [ДЗ#14 - Docker: сети, docker-compose](#hw14)
+4. [ДЗ#15 - Устройство Gitlab CI. Построение процесса непрерывной поставки](#hw15)
 ---
 <a name="hw12"></a> 
 # Домашнее задание 12
@@ -234,3 +235,184 @@ volumes:
   post-py:
   comment:
 ```
+
+[Содержание](#top)
+<a name="hw15"></a> 
+# Домашнее задание 15
+## Устройство Gitlab CI. Построение процесса непрерывной поставки
+
+### Установка и запуск Gitlab-CI в контейнере на GCP
+
+- Создание инстанса при помощи docker-machine
+- Запуск контейнера с docker-compose
+```
+web:
+  image: 'gitlab/gitlab-ce:latest'
+  restart: always
+  hostname: 'gitlab.example.com'
+  environment:
+    GITLAB_OMNIBUS_CONFIG: |
+      external_url 'http://<YOUR-VM-IP>'
+  ports:
+    - '80:80'
+    - '443:443'
+    - '2222:22'
+  volumes:
+    - '/srv/gitlab/config:/etc/gitlab'
+    - '/srv/gitlab/logs:/var/log/gitlab'
+    - '/srv/gitlab/data:/var/opt/gitlab'
+```
+
+### Краткое описание конфигурации gitlab-ci.yml
+```
+# Стадии конвеера. На каждую стадию может быть несколько джобов
+stages:
+  - build
+  - test
+  - review
+  - stage
+  - production
+
+# Переменные окружения
+variables:
+  DATABASE_URL: 'mongodb://mongo/user_posts'
+
+# Глобальная задача для джобов, перед их исполнением
+before_script:
+  - cd reddit
+  - bundle install 
+
+# джоб
+build_job:
+  # Переопределение глобальной задачи перед скриптом
+  before_script: 
+    - cd docker-monolith
+  # Указание стадии  
+  stage: build
+  # По тегу могут быть запущены определенные раннеры
+  tags:
+    - shell
+  # "тело" джоба
+  script:
+    - echo "Building Reddit Container"
+    - docker build -t $DOCKER_USER/gitlab_hw:$CI_PIPELINE_ID .
+    - docker login -u $DOCKER_USER -p $DOCKER_USER_PASSWORD
+    - docker push $DOCKER_USER/gitlab_hw:$CI_PIPELINE_ID
+
+test_unit_job:
+  stage: test
+  services:
+    - mongo:latest
+  script:
+    - ruby simpletest.rb
+
+test_integration_job:
+  before_script:
+    - echo 'Gcloud testing'
+  stage: test
+  script:
+    - echo 'Testing 2'
+
+deploy_dev_job:
+  stage: review
+  before_script:
+    - echo $GCLOUD_SERVICE_ACCOUNT_KEY > ./$CI_PIPELINE_ID.json
+  tags:
+    - gcp
+  script:
+    - echo 'Deploy'
+    - gcloud auth activate-service-account --key-file=./$CI_PIPELINE_ID.json
+    - gcloud compute ssh gitlab-ci --force-key-file-overwrite --zone $GCP_ZONE --command "sudo docker run --rm -d --name reddit -p 9292:9292 $DOCKER_USER/gitlab_hw:$CI_PIPELINE_ID"
+  environment:
+    name: dev
+    url: http://$CI_SERVER_HOST:9292
+
+branch review:
+  stage: review
+  script: echo "Deploy to $CI_ENVIRONMENT_SLUG"
+  environment:
+    name: branch/$CI_COMMIT_REF_NAME
+    url: http://$CI_ENVIRONMENT_SLUG.example.com
+  only:
+    - branches
+  except:
+    - master
+
+staging:
+  stage: stage
+  # Условия, при котором запускается джоб
+  when: manual # вручную
+  only:
+    - /^\d+\.\d+\.\d+/ # только если коммит создержит этот тег
+  script:
+    - echo 'Deploy'
+  environment:
+    name: stage
+    url: https://beta.example.com
+
+production:
+  stage: production
+  when: manual
+  only:
+    - /^\d+\.\d+\.\d+/
+  script:
+    - echo 'Deploy'
+  environment:
+    name: production
+    url: https://example.com
+
+```
+### Раннеры
+Раннеры - среда исполнения джобов. Исполнители могут быть следующие:
+- SSH
+- Shell
+- Parallels
+- VirtualBox
+- Docker
+- Docker Machine (auto-scaling)
+- Kubernetes
+- Custom
+```
+#! /bin/sh
+# Установка GitlabRunner
+
+docker run -d --name gitlab-runner --restart always \
+-v /srv/gitlab-runner/config:/etc/gitlab-runner \
+-v /var/run/docker.sock:/var/run/docker.sock \
+-v /usr/bin/docker:/usr/bin/docker \
+gitlab/gitlab-runner:latest
+
+```
+
+Раннеры регистрируются на проект при помощи токена.
+
+Пример:
+```
+#! /bin/sh
+# Регистрация нового GitlabRunner Docker Ruby
+
+docker exec -it gitlab-runner gitlab-runner register \
+ --non-interactive \
+ --run-untagged \  # если стоит этот флаг, то раннер будет запускаться для джобов без тега
+ --locked=false \
+ --url=http://$(docker-machine ip gitlab-ci)/ \
+ --executor=docker \
+ --docker-image=ruby:2.4.2 \
+ --tag-list="linux,xenial,ubuntu,docker" \
+ --description="docker-runner" \
+ --registration-token $REGISTRATION_TOKEN
+```
+
+### Переменные Gitlab-CI
+Встроенные переменные используются для вызова в джобах CI/CD. Также могут быть настроены кастомные переменные для проекта.
+
+### Задания со *
+Для создания и регистрации большого количество раннеров можно использовать скрипты вида, указанного выше. Флаг `--non-interactive` отключает вопросы при регистрации раннера. Также требуется указать токен `$REGISTRATION_TOKEN` для привязки к проекту.
+
+Для автоматической сборки, публикации и деплоя контейнера с приложением `reddit-app` я использовал разные раннеры. Для сборки контейнера и его публикации использовался раннер с экзекутором SHELL. Для корректной работы необходимы данные авторизации на DockerHub `DOCKER_USER` и `DOCKER_USER_PASSWORD`. Для деплоя приложения использовал контейнер `google/cloud-sdk:alpine`. Для корректной работы деплоя из Gitlab-CI в GCP требуются следующие данные и настройки:
+- Должен быть включен API
+- сервис-аккаунт должен обладать необходимыми правами для исполнения комманд на инстансе
+- `GCLOUD_SERVICE_ACCOUNT_KEY` ключ сервис-аккаунта
+- `GCP_ZONE` зона, в которой находится инстанс
+
+Для интеграции со слаком необходимо в мессанджере настроить кастомную интеграции. Сгенерированный вебхук использовать в настройках GitlabCi в разделе интеграции.
