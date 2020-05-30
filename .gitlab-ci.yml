@@ -41,9 +41,9 @@ test_integration_job:
     - gcp
   script:
     - echo 'Testing 2'
-    - echo $GCLOUD_SERVICE_ACCOUNT_KEY > /tmp/$GCLOUD_SERVICE_ACCOUNT_KEY.json
+    - echo $GCLOUD_SERVICE_ACCOUNT_KEY > /tmp/$CI_PIPELINE_ID.json
     - gcloud version
-    - gcloud auth activate-service-account $GCLOUD_SERVICE_ACCOUNT --key-file=/tmp/$GCLOUD_SERVICE_ACCOUNT_KEY.json
+    - gcloud auth activate-service-account --key-file=/tmp/$CI_PIPELINE_ID.json
     - gcloud auth list
     - gcloud compute config-ssh
     - gcloud compute ssh gitlab-ci --force-key-file-overwrite --zone $GCP_ZONE --command "sudo docker pull razin92/gitlab_hw"
