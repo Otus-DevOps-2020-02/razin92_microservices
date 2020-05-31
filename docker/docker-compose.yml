@@ -3,9 +3,12 @@ services:
   post_db:
     image: mongo:${MONGO_VERSION}
     volumes:
-      - ../src/post_db:/data/db
+      - ./src/post_db:/data/db
     networks:
-      - reddit
+      reddit:
+        aliases:
+          - comment_db
+          - post_db
   ui:
     image: ${USER_NAME}/ui:${UI_VERSION}
     ports:
@@ -32,6 +35,20 @@ services:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
       - '--storage.tsdb.retention=1d'
+    networks:
+      - reddit
+      - ui
+  node-exporter:
+    image: prom/node-exporter:v0.15.2
+    user: root
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.ignored-mount-points="^/(sys|proc|dev|host|etc)($$|/)"'
 
 volumes:
   post_db:
