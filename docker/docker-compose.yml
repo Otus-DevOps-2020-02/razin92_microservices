@@ -57,6 +57,10 @@ services:
       - MONGODB_URI='mongodb://post_db:27017'
     networks: 
       - reddit
+  blackbox-exporter:
+    image: $USER_NAME/blackbox_exporter:$BLACKBOX_VERSION
+    networks: 
+      - reddit
 
 volumes:
   post_db:
