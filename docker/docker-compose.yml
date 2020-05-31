@@ -26,7 +26,7 @@ services:
       - reddit
       - ui
   prometheus:
-    image: ${USER_NAME}/prometheus
+    image: ${USER_NAME}/prometheus:${PROMETHEUS_VERSION}
     ports:
       - '9090:9090'
     volumes:
@@ -49,6 +49,12 @@ services:
       - '--path.procfs=/host/proc'
       - '--path.sysfs=/host/sys'
       - '--collector.filesystem.ignored-mount-points="^/(sys|proc|dev|host|etc)($$|/)"'
+    networks: 
+      - reddit
+  mongodb-exporter:
+    image: $USER_NAME/percona:$PERCONA_VERSION
+    environment: 
+      - MONGODB_URI='mongodb://post_db:27017'
     networks: 
       - reddit
 
