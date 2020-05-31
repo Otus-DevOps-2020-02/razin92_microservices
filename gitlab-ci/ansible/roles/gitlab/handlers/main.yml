@@ -1,0 +1,5 @@
+---
+- name: Starting Gitlab-Ci
+  shell: 
+    chdir: /srv/gitlab/
+    cmd: docker-compose up -d
