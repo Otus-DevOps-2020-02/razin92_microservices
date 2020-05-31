@@ -1,0 +1,7 @@
+---
+- name: Puma Deploy
+  hosts: all
+  become: True
+  roles:
+    - docker_puma
+    

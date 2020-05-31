@@ -1,0 +1,12 @@
+REPOSITORY                TAG                 IMAGE ID            CREATED             SIZE
+slav/ubuntu-tmp-file      latest              d0990113bb01        47 seconds ago      123MB
+ubuntu                    16.04               5f2bf26e3524        7 days ago          123MB
+hello-world               latest              fce289e99eb9        10 months ago       1.84kB
+tknerr/baseimage-ubuntu   16.04               96b434f7a148        14 months ago       256MB
+
+Основываясть на выводах `docker inspect` можно сделать следующий вывод:
+Image явяется родителем для Container и описывает глобальные параметры, необходимые для работы контейнера.
+Свзяь видна в блоке `image` Container'a, где указан `ID` Image и в блоке `Container` Image'a, где указан `ID` Container.
+Глобальные параметры Image описывают архитектуру, тип ОС, пути к рабочим директориям, переменные окружения, список слоев,
+а также параметры запуска контейнера и будут влиять на все контейнеры, использующие его.
+Параметры же Container'a имеют отношение лишь только к этому контейнеру и описывают текущее состояние контейнера.
