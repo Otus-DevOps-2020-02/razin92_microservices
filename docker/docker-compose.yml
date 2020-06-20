@@ -54,13 +54,15 @@ services:
   mongodb-exporter:
     image: $USER_NAME/percona:$PERCONA_VERSION
     environment: 
-      - MONGODB_URI='mongodb://post_db:27017'
+      MONGODB_URI: 'mongodb://post_db:27017'
     networks: 
       - reddit
+      - ui
   blackbox-exporter:
     image: $USER_NAME/blackbox_exporter:$BLACKBOX_VERSION
     networks: 
       - reddit
+      - ui
 
 volumes:
   post_db:
