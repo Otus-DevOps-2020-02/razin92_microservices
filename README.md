@@ -10,6 +10,7 @@
 2. [ДЗ#13 - Docker-образы. Микросервисы](#hw13)
 3. [ДЗ#14 - Docker: сети, docker-compose](#hw14)
 4. [ДЗ#15 - Устройство Gitlab CI. Построение процесса непрерывной поставки](#hw15)
+5. [ДЗ#16 - Введение в мониторинг. Системы мониторинга](#hw16)
 ---
 <a name="hw12"></a> 
 # Домашнее задание 12
@@ -422,3 +423,109 @@ docker exec -it gitlab-runner gitlab-runner register \
 Полезные ссылки:
 - [Настройка деплоя в GCP из GitLab](https://medium.com/google-cloud/automatically-deploy-to-google-app-engine-with-gitlab-ci-d1c7237cbe11)
 - [Настройка сервис-аккаунта](https://stackoverflow.com/questions/45472882/how-to-authenticate-google-cloud-sdk-on-a-docker-ubuntu-image)
+
+[Содержание](#top)
+<a name="hw16"></a>
+# Домашнее задание 16
+## Введение в мониторинг. Системы мониторинга.
+
+В качестве системы мониторинга будет рассморен `Prometheus`. Просмотр собранных данных возможен через встроенный web-интерфейс. Фильтр и построение отчетов при помощи `PromQL`. Настройка параметров мониторинга задается в файле `.yml`. Метрики могут быть собраны сторонними решениями - экспортерами.
+
+```
+# Пример конфигурации
+global:
+  scrape_interval: '5s'  # Частота сбора метрик
+
+scrape_configs:  # параметры сбора метрик
+  - job_name: 'prometheus'
+    static_configs:
+      - targets:  # цель сбора метрик
+        - 'localhost:9090'  # endpoint
+
+  - job_name: 'percona_mongodb'
+    static_configs:
+    - targets:
+        - 'mongodb-exporter:9216' # сторонний сборщик метрик
+
+```
+
+## Задания со *
+В качестве экспортера для мониторинга MongoDB был использован [Percona-exporter](https://github.com/percona/mongodb_exporter). Для подключения к MongoDB необходимо указать расположение сервиса в переменной окружения `MONGODB_URI`.
+
+`Blackbox Exporter` используется для проверок сервисов "снаружи". В данной работе был использован модуль HTTP для проверки доступности сервисов.
+
+```
+# config file
+
+modules:  # используемые модули
+  http_2xx:  # название
+    prober: http  # тип опроса
+    timeout: 5s  # интервал
+    http:
+      valid_http_versions: ["HTTP/1.1", "HTTP/2"]
+      valid_status_codes: []  # Defaults to 2xx
+      method: GET
+      preferred_ip_protocol: "ip4"
+      ip_protocol_fallback: false
+  
+```
+```
+# интеграция в Prometheus
+
+- job_name: 'blackbox'  
+  metrics_path: /probe  # путь до метрик 
+  params:
+    module: 
+      - http_2xx
+  static_configs:
+    - targets:  # цли для опроса
+      - 'http://ui:9292/metrics'
+      - 'http://comment:9292/metrics'
+      - 'http://post-py:5000/metrics'
+  relabel_configs:  # настройки отображения
+    - source_labels: [__address__]
+      target_label: __param_target
+    - source_labels: [__param_target]
+      target_label: instance
+    - target_label: __address__
+      replacement: blackbox-exporter:9115
+
+```
+```
+# пример получаемых метрик
+
+# TYPE probe_http_duration_seconds gauge
+probe_http_duration_seconds{phase="connect"} 0.000162122
+probe_http_duration_seconds{phase="processing"} 0.001374135
+probe_http_duration_seconds{phase="resolve"} 0.000715442
+probe_http_duration_seconds{phase="tls"} 0
+probe_http_duration_seconds{phase="transfer"} 0.000160417
+
+# TYPE probe_http_version gauge
+probe_http_version 1.1
+
+# TYPE probe_http_status_code gauge
+probe_http_status_code 200
+
+# TYPE probe_success gauge
+probe_success 1
+
+```
+
+Для удобства управления и сборки контейнеров исползован `Makefile`. Использование: `make {имя_операции}`.
+
+```
+# пример
+
+build_ui:  # имя операции
+		cd src/ui && bash ./docker_build.sh  # операция
+
+build_post:
+		cd src/post-py && bash ./docker_build.sh
+
+build_comment:
+		cd src/comment && bash ./docker_build.sh
+
+build_reddit_app: build_ui build_post build_comment
+
+```
