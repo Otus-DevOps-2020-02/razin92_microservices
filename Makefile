@@ -8,6 +8,14 @@ create_docker_machine:
 remove_docker_machine:
 		docker-machine rm docker-host -f
 
+up:
+		cd docker && \
+		docker-compose up -d
+
+down:
+		cd docker && \
+		docker-compose down
+
 build_ui:
 		cd src/ui && bash ./docker_build.sh
 
