@@ -8,13 +8,25 @@ create_docker_machine:
 remove_docker_machine:
 		docker-machine rm docker-host -f
 
-up:
+up_reddit:
 		cd docker && \
 		docker-compose up -d
 
-down:
+up_monitoring:
+		cd docker && \
+		docker-compose -f docker-compose-monitoring.yml up -d
+
+up: up_reddit up_monitoring
+
+down_reddit:
 		cd docker && \
 		docker-compose down
+
+down_monitoring:
+		cd docker && \
+		docker-compose -f docker-compose-monitoring.yml down
+
+down: down_reddit down_monitoring
 
 build_ui:
 		cd src/ui && bash ./docker_build.sh
