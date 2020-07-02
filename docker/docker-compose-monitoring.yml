@@ -13,6 +13,8 @@ services:
     networks:
       - reddit
       - ui
+      - promnet
+    
   node-exporter:
     image: prom/node-exporter:v0.15.2
     user: root
@@ -26,6 +28,7 @@ services:
       - '--collector.filesystem.ignored-mount-points="^/(sys|proc|dev|host|etc)($$|/)"'
     networks: 
       - reddit
+
   mongodb-exporter:
     image: $USER_NAME/percona:$PERCONA_VERSION
     environment: 
@@ -33,6 +36,7 @@ services:
     networks: 
       - reddit
       - ui
+
   blackbox-exporter:
     image: $USER_NAME/blackbox_exporter:$BLACKBOX_VERSION
     ports:
@@ -40,6 +44,7 @@ services:
     networks: 
       - reddit
       - ui
+
   cadvisor:
     image: google/cadvisor:v0.29.0
     volumes:
@@ -71,8 +76,6 @@ volumes:
     grafana_data: 
 
 networks:
-    reddit:
-      external: true
-    ui:
-      external: true
     promnet:
+    reddit:
+    ui:

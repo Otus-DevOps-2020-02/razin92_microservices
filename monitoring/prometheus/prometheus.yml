@@ -49,3 +49,7 @@
         static_configs:
           - targets:
             - 'cadvisor:8080'
+      - job_name: 'post'
+        static_configs:
+          - targets:
+            - 'post:5000'

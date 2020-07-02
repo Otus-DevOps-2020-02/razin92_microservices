@@ -26,7 +26,9 @@ down_monitoring:
 		cd docker && \
 		docker-compose -f docker-compose-monitoring.yml down
 
-down: down_reddit down_monitoring
+down:
+		cd docker && \
+		docker-compose down --remove-orphans
 
 build_ui:
 		cd src/ui && bash ./docker_build.sh
