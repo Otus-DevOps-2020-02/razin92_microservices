@@ -69,7 +69,16 @@ services:
     ports:
       - 3000:3000
     networks:
-      - promnet    
+      - promnet
+      
+  alertmanager:
+    image: $USER_NAME/alertmanager:$ALERTMANAGER_VERSION
+    command: 
+      - '--config.file=/etc/alertmanager/config.yml'
+    ports:
+      - 9093:9093
+    networks:
+      - promnet
 
 volumes:
     prometheus_data:

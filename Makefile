@@ -49,7 +49,11 @@ build_blackbox:
 		cd monitoring/blackbox && \
 		docker build -t $${USER_NAME}/blackbox_exporter .
 
-build_monitoring: build_prometheus build_blackbox
+build_alertmanager:
+		cd monitoring/alertmanager && \
+		docker build -t $${USER_NAME}/alertmanager .
+
+build_monitoring: build_prometheus build_blackbox build_alertmanager
 
 build_reddit_app_m: build_reddit_app build_monitoring
 
@@ -69,6 +73,9 @@ push_prometheus:
 
 push_blackbox:
 		docker push $${USER_NAME}/blackbox_exporter:latest
+
+push_alertmanager:
+		docker push $${USER_NAME}/alertmanager
 		
 push_monitoring: push_prometheus push_blackbox
 

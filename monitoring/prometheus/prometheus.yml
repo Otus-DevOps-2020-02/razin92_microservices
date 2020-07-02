@@ -53,3 +53,14 @@
         static_configs:
           - targets:
             - 'post:5000'
+
+    rule_files:
+      - "alerts.yml"
+
+    alerting:
+      alertmanagers:
+        - scheme: http
+          static_configs:
+            - targets:
+              - "alertmanager:9093"
+              
