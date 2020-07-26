@@ -8,6 +8,22 @@ create_docker_machine:
 remove_docker_machine:
 		docker-machine rm docker-host -f
 
+enable_docker_metrics:
+		docker-machine scp ./docker/daemon.json docker-host:/tmp && \
+		docker-machine ssh docker-host sudo mv /tmp/daemon.json /etc/docker/ && \
+		docker-machine ssh docker-host sudo systemctl restart docker
+
+disable_docker_metrics:
+		docker-machine ssh docker-host sudo rm /etc/docker/daemon.json && \
+		docker-machine ssh docker-host sudo systemctl restart docker
+
+install_telegraf:
+		docker-machine scp -r ./monitoring/telegraf/ docker-host:/tmp && \
+		docker-machine ssh docker-host sudo /tmp/telegraf/install_telegraf.sh && \
+		docker-machine ssh docker-host sudo cp /tmp/telegraf/telegraf.conf /etc/telegraf/ && \
+		pause 5s && \
+		docker-machine ssh docker-host systemctl restart telegraf
+
 up_reddit:
 		cd docker && \
 		docker-compose up -d

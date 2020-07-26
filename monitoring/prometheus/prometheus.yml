@@ -53,6 +53,14 @@
         static_configs:
           - targets:
             - 'post:5000'
+      - job_name: 'docker-host'
+        static_configs:
+          - targets:
+            - 'dockerhost:9323'
+      - job_name: 'telegraf'
+        static_configs:
+          - targets:
+            - 'dockerhost:9273'
 
     rule_files:
       - "alerts.yml"

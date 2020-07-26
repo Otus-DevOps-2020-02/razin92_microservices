@@ -10,6 +10,8 @@ services:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
       - '--storage.tsdb.retention=1d'
+    extra_hosts:
+      - 'dockerhost:${DOCKERHOST:-127.0.0.1}'
     networks:
       - reddit
       - ui
