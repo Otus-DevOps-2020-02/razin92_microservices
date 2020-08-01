@@ -5,8 +5,20 @@ create_docker_machine:
 		--google-zone europe-west1-b \
 		docker-host
 
+create_docker_machine_log:
+		docker-machine create --driver google \
+		--google-machine-image https://www.googleapis.com/compute/v1/projects/ubuntu-os-cloud/global/images/family/ubuntu-1604-lts \
+		--google-machine-type n1-standard-1 \
+		--google-open-port 5601/tcp \
+		--google-open-port 9292/tcp \
+		--google-open-port 9411/tcp \
+		logging
+
 remove_docker_machine:
 		docker-machine rm docker-host -f
+
+remove_docker_machine_log:
+		docker-machine rm logging -f
 
 enable_docker_metrics:
 		docker-machine scp ./docker/daemon.json docker-host:/tmp && \
