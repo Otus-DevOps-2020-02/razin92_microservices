@@ -1,10 +1,28 @@
 global:
   slack_api_url: 'https://hooks.slack.com/services/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'
+  smtp_smarthost: 'smtp.server:465'
+  smtp_from: 'sender@example.com'
+  smtp_auth_username: 'sender@example.com'
+  smtp_auth_password: 'secret'
 
 route:
   receiver: 'slack-notifications'
+  
+  routes:
+    - match:
+        severity: page
+      continue: true
+      receiver: 'slack-notifications'
+
+    - match:
+        severity: page
+      receiver: 'email-notifications'
 
 receivers:
 - name: 'slack-notifications'
   slack_configs:
   - channel: 'otus_homework'
+
+- name: 'email-notifications'
+  email_configs:
+    - to: 'v.razin@pst.uz'
