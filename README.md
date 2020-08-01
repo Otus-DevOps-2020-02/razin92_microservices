@@ -536,7 +536,7 @@ build_reddit_app: build_ui build_post build_comment
 <a name="hw17"></a>
 # Домашнее задание 17
 ## Мониторинг приложения и инфраструктуры
-Для мониторинга контейнеров и используемых ресурсов используется [cAdvisor](https://github.com/google/cadvisor), данные с которого можно забирать в формате `Prometheus`. Для визуализации метрик можно использовать [Graphana](https://grafana.com/). `Graphana` позволяет визуализировать данные с различных источников. Для шаблонных метрик представлены [дашборды](https://grafana.com/dashboards). Здесь можно посмотреть [пример](https://rtfm.co.ua/grafana-sozdanie-dashboard/) использования метрик из Prometheus с визуализацией в Graphana. Для мониторнига также важны информационные сообщения (алертинг). Для `Prometheus` может быть использован [alertmanager](https://prometheus.io/docs/alerting/latest/alertmanager/).
+Для мониторинга контейнеров и используемых ресурсов используется [cAdvisor](https://github.com/google/cadvisor), данные с которого можно забирать в формате `Prometheus`. Для визуализации метрик можно использовать [Grafana](https://grafana.com/). `Grafana` позволяет визуализировать данные с различных источников. Для шаблонных метрик представлены [дашборды](https://grafana.com/dashboards). Здесь можно посмотреть [пример](https://rtfm.co.ua/grafana-sozdanie-dashboard/) использования метрик из Prometheus с визуализацией в Grafana. Для мониторнига также важны информационные сообщения (алертинг). Для `Prometheus` может быть использован [alertmanager](https://prometheus.io/docs/alerting/latest/alertmanager/).
 
 ### Задания со *
 - Makefile был рассмотрен в предыдущем ДЗ. В этом были добавлены новые сборки и настройки.
