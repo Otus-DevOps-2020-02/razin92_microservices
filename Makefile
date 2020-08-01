@@ -21,8 +21,8 @@ install_telegraf:
 		docker-machine scp -r ./monitoring/telegraf/ docker-host:/tmp && \
 		docker-machine ssh docker-host sudo /tmp/telegraf/install_telegraf.sh && \
 		docker-machine ssh docker-host sudo cp /tmp/telegraf/telegraf.conf /etc/telegraf/ && \
-		pause 5s && \
-		docker-machine ssh docker-host systemctl restart telegraf
+		sleep 5s && \
+		docker-machine ssh docker-host sudo systemctl restart telegraf
 
 up_reddit:
 		cd docker && \
@@ -92,7 +92,7 @@ push_blackbox:
 
 push_alertmanager:
 		docker push $${USER_NAME}/alertmanager
-		
+
 push_monitoring: push_prometheus push_blackbox
 
 push_reddit_app_m: push_reddit_app push_monitoring
