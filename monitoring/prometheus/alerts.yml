@@ -1,0 +1,19 @@
+groups:
+  - name: alert.rules
+    rules:
+   
+    - alert: InstanceDown
+      expr: up == 0
+      for: 1m
+      labels:
+        severity: page
+      annotations:
+        description: '{{ $labels.instance }} of job {{ $labels.job }} has been down for more than 1 minute'
+        summary: 'Instance {{ $labels.instance }} down'
+   
+    - alert: UIHighRequestLatency
+      expr: histogram_quantile(0.95, sum(rate(ui_request_latency_seconds_bucket[5m])) BY (le)) >= 0.030
+      for: 1m
+      annotations:
+        summary: "High UI request latency on {{ $labels.instance }}"
+        description: "{{ $labels.instance }} has a 95 percentile UI request latency higher than 0.030 s"

@@ -11,6 +11,8 @@
 3. [ДЗ#14 - Docker: сети, docker-compose](#hw14)
 4. [ДЗ#15 - Устройство Gitlab CI. Построение процесса непрерывной поставки](#hw15)
 5. [ДЗ#16 - Введение в мониторинг. Системы мониторинга](#hw16)
+6. [ДЗ#17 - Мониторинг приложения и инфраструктуры](#hw17)
+
 ---
 <a name="hw12"></a> 
 # Домашнее задание 12
@@ -529,3 +531,96 @@ build_comment:
 build_reddit_app: build_ui build_post build_comment
 
 ```
+
+[Содержание](#top)
+<a name="hw17"></a>
+# Домашнее задание 17
+## Мониторинг приложения и инфраструктуры
+Для мониторинга контейнеров и используемых ресурсов используется [cAdvisor](https://github.com/google/cadvisor), данные с которого можно забирать в формате `Prometheus`. Для визуализации метрик можно использовать [Grafana](https://grafana.com/). `Grafana` позволяет визуализировать данные с различных источников. Для шаблонных метрик представлены [дашборды](https://grafana.com/dashboards). Здесь можно посмотреть [пример](https://rtfm.co.ua/grafana-sozdanie-dashboard/) использования метрик из Prometheus с визуализацией в Grafana. Для мониторнига также важны информационные сообщения (алертинг). Для `Prometheus` может быть использован [alertmanager](https://prometheus.io/docs/alerting/latest/alertmanager/).
+
+### Задания со *
+- Makefile был рассмотрен в предыдущем ДЗ. В этом были добавлены новые сборки и настройки.
+- Для организации выдачи метрик встроенным функционалом `Docker` в формате `Prometheus` необходимо включить данную возможность в конфигурационном файле `/etc/docker/daemon.json`.
+```
+# daemon.json
+{
+  "metrics-addr" : "0.0.0.0:9323",
+  "experimental" : true
+}
+```
+И добавить в `Prometheus`
+```
+# config file prometheus
+...
+      - job_name: 'docker-host'
+        static_configs:
+          - targets:
+            - 'dockerhost:9323'
+...
+```
+- Также для мониторига `Docker` можно использовать `Telegraf`. Его конфигурацию можно разделить на разделы и использовать плагины. Используемые в этом ДЗ: `input plugins` - плагины, используемые для мониторнига целевой системы и `output plugins` - плагины, отдающие метрики мониторнига.
+```
+# Установка
+
+#!/bin/bash
+
+wget -qO- https://repos.influxdata.com/influxdb.key | sudo apt-key add -
+source /etc/lsb-release
+echo "deb https://repos.influxdata.com/${DISTRIB_ID,,} ${DISTRIB_CODENAME} stable" | sudo tee /etc/apt/sources.list.d/influxdb.list
+sudo apt-get update && sudo apt-get install telegraf
+
+```
+```
+# Часть из настроек Telegraf
+
+[[inputs.docker]]
+  ## Docker Endpoint
+  ##   To use TCP, set endpoint = "tcp://[ip]:[port]"
+  ##   To use environment variables (ie, docker-machine), set endpoint = "ENV"
+  endpoint = "unix:///var/run/docker.sock"
+
+[[outputs.prometheus_client]]
+  ## Address to listen on
+  listen = ":9273"
+
+```
+- Персонализированные алерты для `Prometheus` создаются на основе `PromQL`
+```
+# Пример алерта на 95 процентиль времени ответа UI
+
+...
+- alert: UIHighRequestLatency
+      expr: histogram_quantile(0.95, sum(rate(ui_request_latency_seconds_bucket[5m])) BY (le)) >= 0.030
+      for: 1m
+      annotations:
+        summary: "High UI request latency on {{ $labels.instance }}"
+        description: "{{ $labels.instance }} has a 95 percentile UI request latency higher than 0.030 s"
+...
+```
+```
+# Настройка уведомления по e-mail
+global:
+...
+  smtp_smarthost: 'smtp.server:465'
+  smtp_from: 'sender@example.com'
+  smtp_auth_username: 'sender@example.com'
+  smtp_auth_password: 'secret'
+...
+route:
+  receiver: 'slack-notifications'
+  
+  routes:
+...
+    - match:
+        severity: page
+      receiver: 'email-notifications'
+...
+receivers:
+...
+- name: 'email-notifications'
+  email_configs:
+    - to: 'mail@example.com'
+...
+
+```
+
