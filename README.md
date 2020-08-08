@@ -12,6 +12,7 @@
 4. [ДЗ#15 - Устройство Gitlab CI. Построение процесса непрерывной поставки](#hw15)
 5. [ДЗ#16 - Введение в мониторинг. Системы мониторинга](#hw16)
 6. [ДЗ#17 - Мониторинг приложения и инфраструктуры](#hw17)
+7. [ДЗ#18 - Логирование и распределенная трассировка](#hw18)
 
 ---
 <a name="hw12"></a> 
@@ -623,4 +624,83 @@ receivers:
 ...
 
 ```
+---
+<a name="hw18"></a> 
+# Домашнее задание 18
+## Логирование и распределенная трассировка
+### Логирование
+Одним из примеров централизованного хранения логов является `ELK` стэк:
 
+1.[ElasticSearch](https://www.elastic.co/elasticsearch/) - TSDB и поисковый движок для хранения данных
+2.[Logstash](https://www.elastic.co/logstash) - агрегация и трансформация данных
+3.[Kibana](https://www.elastic.co/kibana) - визуализация
+
+В данной работе вместо `Logstash` использован [Fluentd](https://www.fluentd.org/), используясь вместе с другими вышеуказанными инструментами, получил название `EFK`.
+
+```
+# Пример конфигурации
+<source>
+  @type forward
+  port 24224
+  bind 0.0.0.0
+</source>
+
+<match *.**>
+  @type copy
+  <store>
+    @type elasticsearch
+    host elasticsearch
+    port 9200
+    logstash_format true
+    logstash_prefix fluentd
+    logstash_dateformat %Y%m%d
+    include_tag_key true
+    type_name access_log
+    tag_key @log_name
+    flush_interval 1s
+  </store>
+  <store>
+    @type stdout
+  </store>
+</match>
+```
+
+Для удобного поиска среди полученных логов, используются фильтры в `Fluentd`, которые затем можно применять в `Kibana`.
+
+```
+# Пример фильтров
+
+<filter service.post>
+  @type parser
+  format json
+  key_name log
+</filter>
+
+<filter service.ui>
+  @type parser
+  key_name log
+  format grok
+  grok_pattern %{RUBY_LOGGER}
+</filter>
+```
+Для парсинга неструктурированных логов могут быть использованы или регулярные выражения:
+```
+<filter service.ui>
+  @type parser
+  format /\[(?<time>[^\]]*)\]  (?<level>\S+) (?<user>\S+)[\W]*service=(?<service>\S+)[\W]*event=(?<event>\S+)[\W]*(?:path=(?<path>\S+)[\W]*)?request_id=(?<request_id>\S+)[\W]*(?:remote_addr=(?<remote_addr>\S+)[\W]*)?(?:method= (?<method>\S+)[\W]*)?(?:response_status=(?<response_status>\S+)[\W]*)?(?:message='(?<message>[^\']*)[\W]*)?/
+  key_name log
+</filter>
+```
+или готовые решения (например, [Grok](https://github.com/fluent/fluent-plugin-grok-parser)):
+```
+<filter service.ui>
+  @type parser
+  format grok
+  grok_pattern service=%{WORD:service} \| event=%{WORD:event} \| request_id=%{GREEDYDATA:request_id} \| message='%{GREEDYDATA:message}'
+  key_name message
+  reserve_data true
+</filter>
+```
+
+### Распределенный трейсинг
+Для выявление проблем среди взаимодействия между сервисами могут быть использованы различные инструменты. Например, [Zipkin](https://zipkin.io/).
