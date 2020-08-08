@@ -54,6 +54,8 @@ services:
     image: ${USER_NAME}/comment:${COMMENT_VERSION}
     environment:
       - ZIPKIN_ENABLED=${ZIPKIN_ENABLED}
+      - COMMENT_DATABASE_HOST=comment_db
+      - COMMENT_DATABASE=comments
     networks:
       - reddit
       - ui
