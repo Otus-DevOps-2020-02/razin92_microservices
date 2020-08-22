@@ -13,6 +13,7 @@
 5. [ДЗ#16 - Введение в мониторинг. Системы мониторинга](#hw16)
 6. [ДЗ#17 - Мониторинг приложения и инфраструктуры](#hw17)
 7. [ДЗ#18 - Логирование и распределенная трассировка](#hw18)
+8. [ДЗ#19 - Введение в Kubernetes](#hw19)
 
 ---
 <a name="hw12"></a> 
@@ -751,3 +752,74 @@ receivers:
 }
 ```
 Так как сервис comment должен получать комментарии из базы данных дальнейшее изучение показало, что не были указаны сервер баз данных и название базы данных в переменных окружения.
+---
+<a name="hw19"></a> 
+# Домашнее задание 19
+## Введение в Kubernetes
+### Установка The Hard Way
+Туториал [тут](https://github.com/kelseyhightower/kubernetes-the-hard-way/blob/master/docs/01-prerequisites.md)
+
+1. Проверка Google Cloud SDK >= 301.0.0
+2. Установка необходимых инструментов. `cfssl` и `cfssljson` >= 1.4.1, `kubectl` >= 1.18.6
+3. Базовые объекты в GCP 
+- 3.1. Создание сети для работы кластера. Настройка firewall для разрешения хождения трафика между инстансами и возможность подключения извне. Регистрация внешнего IP-адреса для балансировщика.
+- 3.2. Создание 3 инстанса для контроллеров и 3 инстанса для воркеров.
+4. Создание сертификатов для управления и сервисов
+- 4.1 Генерация CA для последующего создания необходимых сертификатов
+- 4.2 Генерация сертификатов для следующих целей
+  - Администрирование (клиент)
+  - Kubelet (клиент)
+  - Менеджер контроллеров (клиент)
+  - Kube Proxy (клиент)
+  - Планировщик (клиент)
+  - Kubernetes API (сервер)
+  - Сервис аккаунт
+5. Генерация конфигурационных файлов для управления. Включают в себя указание кластера, учетных данных (сертификата), контекста.
+    - Kubelet Kubernetes
+    - Менеджер контроллера
+    - Планировщик
+    - Администрирование
+6. Генерация конфигурации шифрования секретов Kubernetes
+7. Установка `etcd` на контроллеры
+8. Установка исполняемых файлов для управления Kubernetes (`kube-apiserver kube-controller-manager kube-scheduler kubectl`) на контроллеры. Настройка хэесчека. Настройка разрешений Kubernetes API для доступа к Kubelet API. Настройка балансировщика GCP для фронтенда
+9. Настройка воркеров.
+    - Установка зависимостей ОС (`socat conntrack ipset`)
+    - Установка kubelet и kube-proxy
+    - Конфигурация Kubelet
+    - Конфигурация Kubernetes Proxy
+10. Подключение к консоли управления
+11. Настройка маршрутов для воркеров
+12. Установка DNS-кластера (`kube-dns`)
+
+Пример пода для запуска в Kubernetes
+```
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: comment-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: comment
+  template:
+    metadata:
+      name: comment
+      labels:
+        app: comment
+    spec:
+      containers:
+      - image: razin92/comment
+        name: comment
+
+```
+Запуск подов `reddit`
+```
+$ kubectl get pods                 
+NAME                                  READY   STATUS    RESTARTS   AGE
+comment-deployment-67cbd87bfc-pvvck   1/1     Running   0          8m18s
+mongo-deployment-7c589bf754-hrq5c     1/1     Running   0          8m35s
+post-deployment-66d6859bc5-87jxn      1/1     Running   0          8m24s
+ui-deployment-64db5899c5-ss87g        1/1     Running   0          8m13s
+```
