@@ -7,3 +7,4 @@ credentials.json
 *.tfstate.*.backup
 *.tfstate.backup
 .env
+Gitlab_ci
