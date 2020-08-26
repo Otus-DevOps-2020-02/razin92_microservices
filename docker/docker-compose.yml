@@ -2,6 +2,8 @@ version: '3.3'
 services:
   post_db:
     image: mongo:${MONGO_VERSION}
+    environment:
+      - ZIPKIN_ENABLED=${ZIPKIN_ENABLED}
     volumes:
       - ./src/post_db:/data/db
     networks:
@@ -11,17 +13,49 @@ services:
           - post_db
   ui:
     image: ${USER_NAME}/ui:${UI_VERSION}
+    environment:
+      - POST_SERVICE_HOST=post
+      - POST_SERVICE_PORT=5000
+      - COMMENT_SERVICE_HOST=comment
+      - COMMENT_SERVICE_PORT=9292
+      - ZIPKIN_ENABLED=${ZIPKIN_ENABLED}
     ports:
       - ${UI_PORT}:${REDDIT_PORT}/tcp
+    depends_on:
+      - post
+    ports:
+      - "9292:9292"
     networks:
       - ui
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: localhost:24224
+        tag: service.ui
   post:
     image: ${USER_NAME}/post:${POST_VERSION}
+    environment:
+      - POST_DATABASE_HOST=post_db
+      - POST_DATABASE=posts
+      - ZIPKIN_ENABLED=${ZIPKIN_ENABLED}
+    depends_on:
+      - post_db
+    ports:
+      - "5000:5000"
     networks:
       - reddit
       - ui
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: localhost:24224
+        tag: service.post
   comment:
     image: ${USER_NAME}/comment:${COMMENT_VERSION}
+    environment:
+      - ZIPKIN_ENABLED=${ZIPKIN_ENABLED}
+      - COMMENT_DATABASE_HOST=comment_db
+      - COMMENT_DATABASE=comments
     networks:
       - reddit
       - ui
