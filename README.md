@@ -17,7 +17,7 @@
 9. [ДЗ#20 - Kubernetes. Запуск кластера и приложения Модель безопасности.](#hw20)
 10. [ДЗ#21 - Kubernetes. Networks, Storages](#hw21)
 11. [ДЗ#22 - CI/CD в Kubernetes](#hw22)
-
+12. [ДЗ#23 - Kubernetes и логирование](#hw23)
 ---
 <a name="hw12"></a> 
 # Домашнее задание 12
@@ -918,3 +918,33 @@ users:
 - `helm dep udpate <path>` - обновление зависимостей
 - `helm delete <name>` - остановка
 - `helm reset` - удаление helm из kubernetes 
+
+[Содержание](#top)
+<a name="hw23"></a> 
+# Домашнее задание 23
+## Kubernetes и логирование
+Для мониторинга кластера Kubernetes можно использовать Helm-релиз `prometheus`:
+```
+helm fetch —-untar stable/prometheus
+helm upgrade prom . -f custom_values.yml --install
+```
+Для конфигурации мониторинга указать файл с переменными
+```
+# custom_values.yml
+...
+ # Reddit-app monitoring
+      - job_name: 'post-endpoints'  <-- Имя джоба
+        kubernetes_sd_configs:   <-- ServiceDiscovery настройка
+          - role: endpoints    <-- Что мониторить
+        relabel_configs:  <-- как ставить лейблы и группировать
+          - source_labels: [__meta_kubernetes_service_label_component]
+            action: keep
+            regex: post
+          - action: labelmap
+            regex: __meta_kubernetes_service_label_(.+)
+          - source_labels: [__meta_kubernetes_namespace]
+            target_label: kubernetes_namespace
+          - source_labels: [__meta_kubernetes_service_name]
+            target_label: kubernetes_name
+...
+```
