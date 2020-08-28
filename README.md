@@ -14,6 +14,7 @@
 6. [ДЗ#17 - Мониторинг приложения и инфраструктуры](#hw17)
 7. [ДЗ#18 - Логирование и распределенная трассировка](#hw18)
 8. [ДЗ#19 - Введение в Kubernetes](#hw19)
+9. [ДЗ#20 - Kubernetes. Запуск кластера и приложения Модель безопасности.](#hw20)
 
 ---
 <a name="hw12"></a> 
@@ -823,3 +824,50 @@ mongo-deployment-7c589bf754-hrq5c     1/1     Running   0          8m35s
 post-deployment-66d6859bc5-87jxn      1/1     Running   0          8m24s
 ui-deployment-64db5899c5-ss87g        1/1     Running   0          8m13s
 ```
+---
+<a name="hw20"></a> 
+# Домашнее задание 20
+## Kubernetes. Запуск кластера и приложения Модель безопасности.
+
+[Установка и настройка Minikube+VMware Workstation под Windows](http://blog.vmpress.org/2019/12/minikube-vmware-workstation-windows.html)
+
+Для управления клатером используется контекст - комбинация параметров:
+1. **cluster** - API-сервер
+2. **user** - пользователь для подключения к кластеру
+3. **namespace** - область видимости
+
+Информация о контекствах располагается в ~/.kube/config
+
+```
+apiVersion: v1
+clusters:
+- cluster:
+    certificate-authority-data: <cert_data>
+    server: https://<ip>:6443
+  name: my_cluster
+contexts:
+- context:
+    cluster: my_cluster
+    user: admin
+  name: my_cluster
+current-context: my_cluster
+kind: Config
+preferences: {}
+users:
+- name: admin
+  user:
+    client-certificate: path-to-pem/admin.pem
+    client-key: path-to-key-pem/admin-key.pem
+
+```
+**Команды:**
+- `kubectl config current-context` - текущий контекст
+- `kubectl config get-contexts` - список всех контекстов
+- `kubectl apply -f <file>.yml` - запуск компонента (поды, сервисы...). Применимо к директории
+- `kubectl get pods` - список всех подов в текущем **namespace**
+- `kubectl get pods --selector component=<name>` - выбор списка подов по общему значению
+- `kubectl port-forward <pod-name> 8080:9292` - проброс порта из пода на локальную машину, где выполняется команда. <local-port><pod-port>
+- `kubectl describe [service|port|etc]` - детальное описание
+- `kubectl exec -ti <pod-name> <command>` - выполнить команду на поде
+- `kubectl logs <pod-name>` - посмотреть логи пода
+- `kubectl delete` - удаление компонента
