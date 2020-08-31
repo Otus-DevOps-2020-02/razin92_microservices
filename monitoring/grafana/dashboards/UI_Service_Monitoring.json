@@ -1,34 +1,4 @@
 {
-  "__inputs": [
-    {
-      "name": "DS_PROMEHTEUS_SERVER",
-      "label": "Promehteus Server",
-      "description": "",
-      "type": "datasource",
-      "pluginId": "prometheus",
-      "pluginName": "Prometheus"
-    }
-  ],
-  "__requires": [
-    {
-      "type": "grafana",
-      "id": "grafana",
-      "name": "Grafana",
-      "version": "5.0.0"
-    },
-    {
-      "type": "panel",
-      "id": "graph",
-      "name": "Graph",
-      "version": "5.0.0"
-    },
-    {
-      "type": "datasource",
-      "id": "prometheus",
-      "name": "Prometheus",
-      "version": "5.0.0"
-    }
-  ],
   "annotations": {
     "list": [
       {
@@ -45,7 +15,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": null,
+  "id": 4,
+  "iteration": 1598542926206,
   "links": [],
   "panels": [
     {
@@ -53,14 +24,22 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "${DS_PROMEHTEUS_SERVER}",
+      "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {}
+        },
+        "overrides": []
+      },
       "fill": 1,
+      "fillGradient": 0,
       "gridPos": {
         "h": 9,
         "w": 12,
         "x": 0,
         "y": 0
       },
+      "hiddenSeries": false,
       "id": 2,
       "legend": {
         "alignAsTable": true,
@@ -77,6 +56,7 @@
       "links": [],
       "nullPointMode": "null",
       "percentage": false,
+      "pluginVersion": "7.1.1",
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
@@ -86,7 +66,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "histogram_quantile(0.95, sum(rate(ui_request_latency_seconds_bucket[5m])) by (le))",
+          "expr": "histogram_quantile(0.95, sum(rate(ui_request_latency_seconds_bucket{kubernetes_namespace=~\"$namespace\"}[5m])) by (le))",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 1,
@@ -96,6 +76,7 @@
       ],
       "thresholds": [],
       "timeFrom": "10m",
+      "timeRegions": [],
       "timeShift": null,
       "title": "Panel Title",
       "tooltip": {
@@ -103,7 +84,6 @@
         "sort": 1,
         "value_type": "individual"
       },
-      "transparent": false,
       "type": "graph",
       "xaxis": {
         "buckets": null,
@@ -129,14 +109,84 @@
           "min": null,
           "show": true
         }
-      ]
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
     }
   ],
-  "schemaVersion": 16,
+  "schemaVersion": 26,
   "style": "dark",
   "tags": [],
   "templating": {
-    "list": []
+    "list": [
+      {
+        "allValue": null,
+        "current": {
+          "selected": true,
+          "tags": [],
+          "text": "default",
+          "value": [
+            "default"
+          ]
+        },
+        "datasource": "Prometheus",
+        "definition": "label_values(namespace)",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Env",
+        "multi": true,
+        "name": "namespace",
+        "options": [
+          {
+            "selected": false,
+            "text": "All",
+            "value": "$__all"
+          },
+          {
+            "selected": true,
+            "text": "default",
+            "value": "default"
+          },
+          {
+            "selected": false,
+            "text": "kube-node-lease",
+            "value": "kube-node-lease"
+          },
+          {
+            "selected": false,
+            "text": "kube-public",
+            "value": "kube-public"
+          },
+          {
+            "selected": false,
+            "text": "kube-system",
+            "value": "kube-system"
+          },
+          {
+            "selected": false,
+            "text": "production",
+            "value": "production"
+          },
+          {
+            "selected": false,
+            "text": "staging",
+            "value": "staging"
+          }
+        ],
+        "query": "label_values(namespace)",
+        "refresh": 0,
+        "regex": "/.+/",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      }
+    ]
   },
   "time": {
     "from": "now-6h",
@@ -144,7 +194,6 @@
   },
   "timepicker": {
     "refresh_intervals": [
-      "5s",
       "10s",
       "30s",
       "1m",
@@ -170,6 +219,5 @@
   "timezone": "",
   "title": "UI_Service_Monitoring",
   "uid": "pPLQDZMGk",
-  "version": 1
+  "version": 2
 }
-

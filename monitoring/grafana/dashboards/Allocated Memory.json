@@ -15,8 +15,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 2,
-  "iteration": 1598542884091,
+  "id": 5,
+  "iteration": 1598542785601,
   "links": [],
   "panels": [
     {
@@ -34,8 +34,8 @@
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
-        "h": 12,
-        "w": 22,
+        "h": 9,
+        "w": 12,
         "x": 0,
         "y": 0
       },
@@ -52,6 +52,7 @@
       },
       "lines": true,
       "linewidth": 1,
+      "links": [],
       "nullPointMode": "null",
       "percentage": false,
       "pluginVersion": "7.1.1",
@@ -64,27 +65,20 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "rate(post_count{kubernetes_namespace=~\"$namespace\"}[1h])",
+          "expr": "go_memstats_alloc_bytes_total{kubernetes_namespace=~\"$namespace\"}",
           "format": "time_series",
-          "interval": "",
+          "instant": false,
+          "interval": "15s",
           "intervalFactor": 1,
           "legendFormat": "",
           "refId": "A"
-        },
-        {
-          "expr": "rate(comment_count{kubernetes_namespace=~\"$namespace\"}[1h])",
-          "format": "time_series",
-          "interval": "",
-          "intervalFactor": 1,
-          "legendFormat": "",
-          "refId": "B"
         }
       ],
       "thresholds": [],
-      "timeFrom": null,
+      "timeFrom": "30m",
       "timeRegions": [],
       "timeShift": null,
-      "title": "Panel Title",
+      "title": "Allocated Memory",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -130,9 +124,12 @@
       {
         "allValue": null,
         "current": {
-          "selected": false,
-          "text": "default",
-          "value": "default"
+          "selected": true,
+          "tags": [],
+          "text": "All",
+          "value": [
+            "$__all"
+          ]
         },
         "datasource": "Prometheus",
         "definition": "label_values(namespace)",
@@ -143,7 +140,7 @@
         "name": "namespace",
         "options": [
           {
-            "selected": false,
+            "selected": true,
             "text": "All",
             "value": "$__all"
           },
@@ -173,7 +170,7 @@
             "value": "production"
           },
           {
-            "selected": true,
+            "selected": false,
             "text": "staging",
             "value": "staging"
           }
@@ -220,7 +217,7 @@
     ]
   },
   "timezone": "",
-  "title": "Business_Logic_Monitoring",
-  "uid": "jt013dMGz",
-  "version": 3
+  "title": "Allocated Memory",
+  "uid": "2U_Bbc7Mz",
+  "version": 2
 }
